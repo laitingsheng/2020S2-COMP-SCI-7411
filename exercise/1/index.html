@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html>
+    <head>
+
+        <meta charset="UTF-8">
+        <meta name="Author" content="Ian Knight, University of Adelaide">
+        <meta name="description" content="EDC Prac 1. DO NOT MODIFY THIS FILE.">
+
+        <title>Lock</title>
+
+        <style>
+
+            body {
+                font-family: sans-serif;
+                font-size: 1.5rem;
+            }
+
+            .container {
+                margin: 1em auto;
+                display: flex;
+                flex-flow: row wrap;
+                justify-content: center;
+                align-content: center;
+                max-width: 400px;
+            }
+
+            .container button {
+                font-size: 1.5rem;
+                flex-grow: 2;
+                box-sizing: border-box;
+                width: 30%;
+                padding: 0.5em;
+            }
+
+            .container .display {
+                flex-grow: 5;
+                box-sizing: border-box;
+                width: 76%;
+                padding: 1em;
+                border: 1px solid grey;
+                background-color: lightgoldenrodyellow;
+            }
+
+            .container .indicator {
+                flex-grow: 1;
+                box-sizing: border-box;
+                width: 18%;
+                padding: 1em;
+
+            }
+
+        </style>
+
+    </head>
+    <body onload="setInterval(tick, 100);">
+
+        <div class="container">
+
+            <div class="display">&nbsp;</div>
+            <div class="indicator">&nbsp;</div>
+
+            <button onclick="button1()">1</button>
+            <button onclick="button2()">2</button>
+            <button onclick="button3()">3</button>
+            <button onclick="button4()">4</button>
+            <button onclick="button5()">5</button>
+            <button onclick="button6()">6</button>
+            <button onclick="button7()">7</button>
+            <button onclick="button8()">8</button>
+            <button onclick="button9()">9</button>
+            <button onclick="buttonStar()">*</button>
+            <button onclick="button0()">0</button>
+            <button onclick="buttonHash()">#</button>
+
+        </div>
+
+        <script>
+
+            /**
+             * Call these functions to interact with the lock
+             */
+
+            function setDisplay(text){
+                document.querySelector(".display").innerText = text;
+            }
+
+            function setLock(locked){
+                if(locked){
+                    document.querySelector(".indicator").innerHTML = "🔒";
+                    alert("🔒");
+                } else {
+                    document.querySelector(".indicator").innerText = "🔓";
+                    alert("🔓");
+                }
+
+            }
+
+        </script>
+
+        <script src="lock.js"></script>
+
+    </body>
+</html>
