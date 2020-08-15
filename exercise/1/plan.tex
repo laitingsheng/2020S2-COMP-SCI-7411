@@ -22,96 +22,139 @@
 
 \section{Locking}
 
-\begin{tikzpicture}
-  \node[state, initial] at (3, 3) (open){OPEN};
-  \node[state] at (0, 0) (q1){$q_1$};
-  \node[state] at (0, 6) (q2){$q_2$};
-  \node[state] at (6, 6) (q3){$q_3$};
-  \node[state] at (6, 0) (q4){$q_4$};
-  \node[state, accepting] at (9, 0) (locked){LOCKED};
+\begin{figure}[H]
+  \centering
+  \begin{tikzpicture}
+    \node[state, initial] at (3, 3) (open){OPEN};
+    \node[state] at (0, 0) (q1){$q_1$};
+    \node[state] at (0, 6) (q2){$q_2$};
+    \node[state] at (6, 6) (q3){$q_3$};
+    \node[state] at (6, 0) (q4){$q_4$};
+    \node[state, accepting] at (9, 0) (locked){LOCKED};
 
-  \draw
+    \draw
 
-  (open) edge[loop above] node{$\#$,$*$} (open)
-  (open) edge[bend left, right] node{$\left\{0..9\right\}$} (q1)
-  (q1) edge[bend left, left] node{$\left\{0..9\right\}$} (q2)
-  (q2) edge[bend left, above] node{$\left\{0..9\right\}$} (q3)
-  (q3) edge[bend left, right] node{$\left\{0..9\right\}$} (q4)
-  (q4) edge[loop below, below] node{$\left\{0..9\right\}$} (q4)
+    (open) edge[loop above] node{$\#$,$*$} (open)
+    (open) edge[bend left, right] node{$\left\{0..9\right\}$} (q1)
+    (q1) edge[bend left, left] node{$\left\{0..9\right\}$} (q2)
+    (q2) edge[bend left, above] node{$\left\{0..9\right\}$} (q3)
+    (q3) edge[bend left, right] node{$\left\{0..9\right\}$} (q4)
 
-  (q1) edge node{$*$,$\#$,$>$10s} (open)
-  (q2) edge[left] node{$*$,$\#$,$>$10s} (open)
-  (q3) edge node{$*$,$\#$,$>$10s} (open)
-  (q4) edge node{$\#$} (locked)
-  (q4) edge[right] node{$*$,$>$10s} (open)
+    (q1) edge node{$*$,$\#$,$>$10s} (open)
+    (q2) edge[left] node{$*$,$\#$,$>$10s} (open)
+    (q3) edge node{$*$,$\#$,$>$10s} (open)
+    (q4) edge node{$\#$} (locked)
+    (q4) edge[right] node{$*$,$>$10s} (open)
 
-  ;
-\end{tikzpicture}
-
-The design above has several notations which might be unclear:
-\begin{itemize}
-  \item State is named $q_i$ where $i$ represents the number of digits shown in the panel display.
-  \item $>$10s means the timer has recorded a duration longer than 10 seconds. Notice that the timer is started in state $q_1$, and will be reset in both OPEN and LOCKED states.
-  \item $\#$ means presssing the key $\#$ once, similar for $*$. $\left\{0..9\right\}$ means pressing one of the numeric keys on the panel once.
-\end{itemize}
+    ;
+  \end{tikzpicture}
+  \caption{Locking Process}
+  \label{fig:locking}
+\end{figure}
 
 \section{Unlocking}
 
-\begin{tikzpicture}
-  \node[state, initial] at (4, 8) (locked){LOCKED};
-  \node[state] at (0, 4) (q1){$q_1$};
-  \node[state] at (0, 12) (q2){$q_2$};
-  \node[state] at (8, 12) (q3){$q_3$};
-  \node[state] at (8, 4) (q4){$q_4$};
-  \node[state] at (4, 4) (check){CHECK};
-  \node[state, accepting] at (4, 0) (open){OPEN};
+\begin{figure}[H]
+  \centering
+  \begin{tikzpicture}
+    \node[state, initial] at (4, 8) (locked){LOCKED};
+    \node[state] at (0, 4) (q1){$q_1$};
+    \node[state] at (0, 12) (q2){$q_2$};
+    \node[state] at (8, 12) (q3){$q_3$};
+    \node[state] at (8, 4) (q4){$q_4$};
+    \node[state] at (4, 4) (check){CHECK};
+    \node[state, accepting] at (4, 0) (open){OPEN};
 
-  \draw
+    \draw
 
-  (locked) edge[loop above] node{$\#$,$*$} (locked)
-  (locked) edge[bend left, left] node{$\left\{0..9\right\}$} (q1)
-  (q1) edge[bend left, left] node{$\left\{0..9\right\}$} (q2)
-  (q2) edge[bend left, above] node{$\left\{0..9\right\}$} (q3)
-  (q3) edge[bend left, right] node{$\left\{0..9\right\}$} (q4)
-  (q4) edge[loop below, below] node{$\left\{0..9\right\}$} (q4)
+    (locked) edge[loop above] node{$\#$,$*$} (locked)
+    (locked) edge[bend left, left] node{$\left\{0..9\right\}$} (q1)
+    (q1) edge[bend left, left] node{$\left\{0..9\right\}$} (q2)
+    (q2) edge[bend left, above] node{$\left\{0..9\right\}$} (q3)
+    (q3) edge[bend left, right] node{$\left\{0..9\right\}$} (q4)
 
-  (q1) edge[bend left] node{$*$,$\#$,$>$10s} (locked)
-  (q2) edge[left] node{$*$,$\#$,$>$10s} (locked)
-  (q3) edge node{$*$,$\#$,$>$10s} (locked)
-  (q4) edge node{$\#$} (check)
-  (q4) edge[right] node{$*$,$>$10s} (locked)
+    (q1) edge[bend left] node{$*$,$\#$,$>$10s} (locked)
+    (q2) edge[left] node{$*$,$\#$,$>$10s} (locked)
+    (q3) edge node{$*$,$\#$,$>$10s} (locked)
+    (q4) edge node{$\#$} (check)
+    (q4) edge[right] node{$*$,$>$10s} (locked)
 
-  (check) edge[right] node{fail} (locked)
-  (check) edge node{matched} (open)
+    (check) edge[right] node{fail} (locked)
+    (check) edge node{matched} (open)
 
-  ;
-\end{tikzpicture}
+    ;
+  \end{tikzpicture}
+  \caption{Unlocking Process}
+  \label{fig:unlocking}
+\end{figure}
 
-The notations here are the same as the previous graph, and these two graphs are quite similar as well. The CHECK state is an intermediate state used to represent the process of password checking.
+\section{Notations}
+
+The designs above have several notations:
+\begin{itemize}
+  \item Intermediate states within the digits entering process are named $q_i$ where $i$ represents the number of digits shown in the panel display.
+  \item $\#$ means presssing the key $\#$ once, similar for $*$. $\left\{0..9\right\}$ means pressing one of the numeric keys on the panel once.
+  \item $q_1$ will also starts a timer.
+  \item $q_4$ will lock all numeric keys so there are only two possible inputs ($*$ and $\#$).
+  \item The CHECK state in Figure \ref{fig:unlocking} is a special intermediate state which are not visually presented to the user. It just depicts a state where the system has to check for password correctness.
+  \item "$>$10s" means the timer has recorded a duration longer than 10 seconds. An alert will be delivered to the user and the input will be cleared as required.
+\end{itemize}
 
 \section{Timer}
 
-The timer used in the previous two graphs has a simpler state diagram.
+The timer started in state $q_1$ in Figure \ref{fig:locking} and \ref{fig:unlocking} can be interrupted by $*$ or $\#$ as described previously. Any subsequent inputs of digits following the first digit will not affect the status of the timer. Thus the diagram will be as simple as Figure \ref{fig:timer}.
 
-\begin{tikzpicture}
-  \node[state, initial, accepting] at (0, 0) (inactive){inactive};
-  \node[state] at (4, 0) (active){active};
+\begin{figure}[H]
+  \centering
+  \begin{tikzpicture}
+    \node[state, initial, accepting] at (0, 0) (inactive){Inactive};
+    \node[state] at (4, 0) (active){Active};
 
-  \draw
+    \draw
 
-  (inactive) edge[loop above] node{$\#$,$*$} (inactive)
-  (inactive) edge[bend left] node{$\left\{0..9\right\}$} (active)
-  (active) edge[loop above] node{$\left\{0..9\right\}$} (active)
-  (active) edge[bend left] node{$\#$,$*$,$>$10s} (inactive)
+    (inactive) edge[loop above] node{$\#$,$*$} (inactive)
+    (inactive) edge[bend left] node{$\left\{0..9\right\}$} (active)
+    (active) edge[loop above] node{$\left\{0..9\right\}$} (active)
+    (active) edge[bend left] node{$\#$,$*$,$>$10s} (inactive)
 
-  ;
-\end{tikzpicture}
+    ;
+  \end{tikzpicture}
+  \caption{Timer}
+  \label{fig:timer}
+\end{figure}
 
-\section{Extra}
+\section{Disabling Numeric Keys}
 
-\begin{itemize}
-  \item Although $\#$ and $*$ seems to be identical in the state diagram in the state diagram, in real world, this will usually be just a beep sound played by the lock if someone entered an incorrect password. In the implementation, however, the effect will be just clearing the input box as it returns back to the starting state.
-  \item The design choice of the transition from $q_4$ looping back to $q_4$ is based on most of the common real-world appliances. All redundant number pressed after the input box is full will be discarded automatically.
-\end{itemize}
+Another design choice is disabling numeric keys in the panel when $q_4$ is reached.
+
+\begin{figure}[H]
+  \centering
+  \begin{tikzpicture}
+    \node[state, initial, accepting] (initial){Initial};
+    \node[state, right of=initial] (f1){$f_1$};
+    \node[state, right of=f1] (f2){$f_2$};
+    \node[state, right of=f2] (f3){$f_3$};
+
+    \draw
+
+    (initial) edge node{fail} (f1)
+    (f1) edge node{fail} (f2)
+    (f2) edge node{fail} (f3)
+
+    (initial) edge[loop above] node{success} (initial)
+    (f1) edge[bend left, below] node{success} (initial)
+    (f2) edge[bend right, above] node{success} (initial)
+
+    ;
+  \end{tikzpicture}
+  \caption{Numeric Keys Disabling}
+  \label{fig:disable}
+\end{figure}
+
+A permanent lock will also be applied if the user fails to enter the correct password three times and it's not possible to input digits anymore, and this is show as the state $f_3$ in Figure \ref{fig:disable}.
+
+\section{Notes}
+
+Although $\#$ and $*$ seem to have identical behaviour in the state diagram in the state diagram, in the actual implementation, I tried to display different alerts to the user if they press $\#$ without an appropriate input. For example, an alert warning the user about incorrect password etc.
 
 \end{document}
