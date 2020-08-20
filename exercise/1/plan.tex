@@ -14,37 +14,47 @@
 
 \title{COMP SCI 7411 Event Driven Computing Practice 1 Plan}
 \author{Tinson Lai \\ a1812422}
-\date{\today}
+\date{}
 
 \begin{document}
 
 \maketitle
+
+\section{Notations}
+
+The following notations will be used in the diagram.
+\begin{itemize}
+  \item OPEN and LOCKED are two states defined initially from the question.
+  \item Intermediate states will be named $q_i$ where $i$ represents the number of digits in the text box.
+  \item $0..9$ means pressing one of the numeric keys once. Similarly, $*$ and $\#$ mean pressing $*$ and $\#$ in the panel respectively.
+\end{itemize}
 
 \section{Locking}
 
 \begin{figure}[H]
   \centering
   \begin{tikzpicture}
-    \node[state, initial] at (3, 3) (open){OPEN};
-    \node[state] at (0, 0) (q1){$q_1$};
-    \node[state] at (0, 6) (q2){$q_2$};
-    \node[state] at (6, 6) (q3){$q_3$};
-    \node[state] at (6, 0) (q4){$q_4$};
-    \node[state, accepting] at (9, 0) (locked){LOCKED};
+    \node[state, initial] at (0, 0) (open){OPEN};
+    \node[state] at (0, 4) (q1){$q_1$};
+    \node[state] at (4, 4) (q2){$q_2$};
+    \node[state] at (8, 4) (q3){$q_3$};
+    \node[state] at (4, 0) (q4){$q_4$};
+    \node[state, accepting] at (8, 0) (locked){LOCKED};
 
     \draw
 
-    (open) edge[loop above] node{$\#$,$*$} (open)
-    (open) edge[bend left, right] node{$\left\{0..9\right\}$} (q1)
-    (q1) edge[bend left, left] node{$\left\{0..9\right\}$} (q2)
-    (q2) edge[bend left, above] node{$\left\{0..9\right\}$} (q3)
-    (q3) edge[bend left, right] node{$\left\{0..9\right\}$} (q4)
+    (open) edge[bend left, left] node{$0..9$} (q1)
+    (q1) edge node{$0..9$} (q2)
+    (q2) edge node{$0..9$} (q3)
+    (q3) edge node{$0..9$} (q4)
+    (q4) edge[loop below] node{$0..9$} (q4)
 
-    (q1) edge node{$*$,$\#$,$>$10s} (open)
-    (q2) edge[left] node{$*$,$\#$,$>$10s} (open)
-    (q3) edge node{$*$,$\#$,$>$10s} (open)
-    (q4) edge node{$\#$} (locked)
-    (q4) edge[right] node{$*$,$>$10s} (open)
+    (open) edge[loop below] node{$\#$,$*$} (open)
+    (q1) edge node{$*$,$\#$} (open)
+    (q2) edge[left] node{$*$,$\#$} (open)
+    (q3) edge[above] node{$*$,$\#$} (open)
+    (q4) edge[below] node{$*$} (open)
+    (q4) edge[below] node{$\#$} (locked)
 
     ;
   \end{tikzpicture}
@@ -57,30 +67,27 @@
 \begin{figure}[H]
   \centering
   \begin{tikzpicture}
-    \node[state, initial] at (4, 8) (locked){LOCKED};
+    \node[state, initial] at (0, 0) (locked){LOCKED};
     \node[state] at (0, 4) (q1){$q_1$};
-    \node[state] at (0, 12) (q2){$q_2$};
-    \node[state] at (8, 12) (q3){$q_3$};
-    \node[state] at (8, 4) (q4){$q_4$};
-    \node[state] at (4, 4) (check){CHECK};
-    \node[state, accepting] at (4, 0) (open){OPEN};
+    \node[state] at (4, 4) (q2){$q_2$};
+    \node[state] at (8, 4) (q3){$q_3$};
+    \node[state] at (4, 0) (q4){$q_4$};
+    \node[state, accepting] at (8, 0) (open){OPEN};
 
     \draw
 
-    (locked) edge[loop above] node{$\#$,$*$} (locked)
-    (locked) edge[bend left, left] node{$\left\{0..9\right\}$} (q1)
-    (q1) edge[bend left, left] node{$\left\{0..9\right\}$} (q2)
-    (q2) edge[bend left, above] node{$\left\{0..9\right\}$} (q3)
-    (q3) edge[bend left, right] node{$\left\{0..9\right\}$} (q4)
+    (locked) edge[bend left, left] node{$0..9$} (q1)
+    (q1) edge node{$0..9$} (q2)
+    (q2) edge node{$0..9$} (q3)
+    (q3) edge node{$0..9$} (q4)
+    (q4) edge[loop below] node{$0..9$} (q4)
 
-    (q1) edge[bend left] node{$*$,$\#$,$>$10s} (locked)
-    (q2) edge[left] node{$*$,$\#$,$>$10s} (locked)
-    (q3) edge node{$*$,$\#$,$>$10s} (locked)
-    (q4) edge node{$\#$} (check)
-    (q4) edge[right] node{$*$,$>$10s} (locked)
-
-    (check) edge[right] node{fail} (locked)
-    (check) edge node{matched} (open)
+    (locked) edge[loop below] node{$\#$,$*$} (locked)
+    (q1) edge node{$*$,$\#$} (locked)
+    (q2) edge[left] node{$*$,$\#$} (locked)
+    (q3) edge[above] node{$*$,$\#$} (locked)
+    (q4) edge[below] node{$*$,$\# \wedge fail$} (locked)
+    (q4) edge[below] node{$\# \wedge success$} (open)
 
     ;
   \end{tikzpicture}
@@ -88,34 +95,24 @@
   \label{fig:unlocking}
 \end{figure}
 
-\section{Notations}
-
-The designs above have several notations:
-\begin{itemize}
-  \item Intermediate states within the digits entering process are named $q_i$ where $i$ represents the number of digits shown in the panel display.
-  \item $\#$ means presssing the key $\#$ once, similar for $*$. $\left\{0..9\right\}$ means pressing one of the numeric keys on the panel once.
-  \item $q_1$ will also starts a timer.
-  \item $q_4$ will lock all numeric keys so there are only two possible inputs ($*$ and $\#$).
-  \item The CHECK state in Figure \ref{fig:unlocking} is a special intermediate state which are not visually presented to the user. It just depicts a state where the system has to check for password correctness.
-  \item "$>$10s" means the timer has recorded a duration longer than 10 seconds. An alert will be delivered to the user and the input will be cleared as required.
-\end{itemize}
+In here, \textbf{\textit{fail}} means the system failed to match the input text with the recorded password, and \textbf{\textit{success}} means the opposite.
 
 \section{Timer}
 
-The timer started in state $q_1$ in Figure \ref{fig:locking} and \ref{fig:unlocking} can be interrupted by $*$ or $\#$ as described previously. Any subsequent inputs of digits following the first digit will not affect the status of the timer. Thus the diagram will be as simple as Figure \ref{fig:timer}.
+The timer has a different schedule. It will be triggered by any input of digits if the system is idle. Let's define IDLE state (in Figure \ref{fig:timer}) as a state where no input is currently in the text box and the timer hasn't been started yet. Therefore, either OPEN or LOCKED in both Figure \ref{fig:locking} \& \ref{fig:unlocking} is in timer's IDLE state. Any subsequent input after the first digit by user will not interrupt the timer unless the system status has been effectively reset to idle. A reset can be triggered by pressing either $\#$ or $*$, or if the timer records a duration longer than the set limit.
 
 \begin{figure}[H]
   \centering
   \begin{tikzpicture}
-    \node[state, initial, accepting] at (0, 0) (inactive){Inactive};
-    \node[state] at (4, 0) (active){Active};
+    \node[state, initial, accepting] at (0, 0) (idle){IDLE};
+    \node[state] at (4, 0) (timing){Timing};
 
     \draw
 
-    (inactive) edge[loop above] node{$\#$,$*$} (inactive)
-    (inactive) edge[bend left] node{$\left\{0..9\right\}$} (active)
-    (active) edge[loop above] node{$\left\{0..9\right\}$} (active)
-    (active) edge[bend left] node{$\#$,$*$,$>$10s} (inactive)
+    (idle) edge[loop above] node{$\#$,$*$} (idle)
+    (idle) edge[bend left] node{$\left\{0..9\right\}$} (timing)
+    (timing) edge[loop above] node{$\left\{0..9\right\}$} (timing)
+    (timing) edge[bend left] node{$\#$,$*$,$>$10s} (idle)
 
     ;
   \end{tikzpicture}
@@ -123,9 +120,11 @@ The timer started in state $q_1$ in Figure \ref{fig:locking} and \ref{fig:unlock
   \label{fig:timer}
 \end{figure}
 
-\section{Disabling Numeric Keys}
+Here, $>$10s means the timing exceeds 10 seconds, which is a preset limit as required in the question.
 
-Another design choice is disabling numeric keys in the panel when $q_4$ is reached.
+\section{Permanent Lock}
+
+Another design choice is that the system will no longer be usable when a set limit (3) of trials is reached. It will ignore all interactive events from users if the system is permanently locked.
 
 \begin{figure}[H]
   \centering
@@ -147,14 +146,23 @@ Another design choice is disabling numeric keys in the panel when $q_4$ is reach
 
     ;
   \end{tikzpicture}
-  \caption{Numeric Keys Disabling}
-  \label{fig:disable}
+  \caption{Permanent Lock}
+  \label{fig:permanent}
 \end{figure}
 
-A permanent lock will also be applied if the user fails to enter the correct password three times and it's not possible to input digits anymore, and this is show as the state $f_3$ in Figure \ref{fig:disable}.
+\textbf{\textit{success}} and \textbf{\textit{fail}} have the same meanings as in the locking process. A noticeable point is that an invalid length of input will not be counted as a failed trial, which means only three consecutive failed attempts by 4 digits input can lead to the permanent lock. This is an attempt to avoid circumstances such as kids unintentionally trigger the permanent lock because of curiosity. The state $f_3$ in Figure \ref{fig:permanent} is a sink vertex but not an accepting state, which means the system will no longer have any state transitions due to the lock. Refreshing the page will reinitialise everything, which is somewhat similar to real life smart appliances as they will provide certain ways to perform a factory restore. It will discard everything, but the appliance will be usable again.
 
-\section{Notes}
+\section{Implementation Notes}
 
-Although $\#$ and $*$ seem to have identical behaviour in the state diagram in the state diagram, in the actual implementation, I tried to display different alerts to the user if they press $\#$ without an appropriate input. For example, an alert warning the user about incorrect password etc.
+\begin{itemize}
+  \item Pressing $\#$ and $*$ will have the same effect in the state diagram, but in the actual implementation, pressing $\#$ might fire different alerts for different malformed input. Specifically,
+  \begin{itemize}
+    \item $q_1$, $q_2$ and $q_3$ in both Figure \ref{fig:locking} \& \ref{fig:unlocking} will display an alert for insufficient input length.
+    \item $q_4$ in Figure \ref{fig:unlocking} will alert the user for incorrect password. It will also warn the user about the permanent lock if the user have been recorded three failed attempts.
+    \item $q_4$ in both Figure \ref{fig:locking} \& \ref{fig:unlocking} will discard any further input by the user, and it will alert the user for unexpected input.
+  \end{itemize}
+  \item The timer might have a slight offset in timing, but the error is negligible (within 0.1 second which is not perceivable).
+  \item The timer will warn the user for taking more than 10 seconds to complete the input, and reset the input as required.
+\end{itemize}
 
 \end{document}
