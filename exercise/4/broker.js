@@ -1,0 +1,3 @@
+record = {}
+
+exports.emit = (type) => {}
