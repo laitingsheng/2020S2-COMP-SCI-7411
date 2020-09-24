@@ -9,7 +9,8 @@
     ]
   },
   "include": [
-    "src/**/*"
+    "broker.js",
+    "test/broker.js"
   ],
   "exclude": [
     "node_modules"
