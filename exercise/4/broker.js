@@ -1,7 +1,7 @@
 const record = {}
 
-exports.emit = (type) => {
-    record[type].forEach((_, handler) => { handler() })
+exports.emit = type => {
+    record[type]?.forEach((_, handler) => { handler() })
 }
 
 exports.subscribe = (type, handler) => {

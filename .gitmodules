@@ -1,0 +1,3 @@
+[submodule "exercise/4/suite"]
+	path = exercise/4/suite
+	url = git@github.com:laitingsheng/comp-sci-7411-exercise-4-test.git
