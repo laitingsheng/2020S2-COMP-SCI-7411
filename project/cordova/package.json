@@ -1,6 +1,6 @@
 {
-  "name": "dev.tinson.uoa.edc.project",
-  "displayName": "Project",
+  "name": "dev.tinson.uoa.edc.project.cordova",
+  "displayName": "Cordova",
   "version": "0.0.0",
   "description": "Apache Cordova application for COMP SCI 7411 project.",
   "main": "index.js",
@@ -10,8 +10,7 @@
   "keywords": [
     "ecosystem:cordova"
   ],
-  "author": "Tinson Lai",
-  "license": "MIT",
+  "author": "Apache Cordova Team",
   "devDependencies": {
     "cordova-android": "^9.0.0",
     "cordova-browser": "^6.0.0",
@@ -33,5 +32,8 @@
       "windows",
       "osx"
     ]
+  },
+  "dependencies": {
+    "colyseus.js": "^0.13.2"
   }
 }

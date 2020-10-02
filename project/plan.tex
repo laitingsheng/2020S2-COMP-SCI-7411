@@ -1,0 +1,27 @@
+\documentclass[12pt]{article}
+
+\usepackage[english]{babel}
+\usepackage[utf8]{inputenc}
+\usepackage[top=2cm, left=2cm, right=2cm, bottom=2cm]{geometry}
+\usepackage[document]{ragged2e}
+\usepackage{tikz,minted,times}
+
+\setlength\parindent{0pt}
+\sloppy
+\usetikzlibrary{automata,positioning,arrows,fit}
+\tikzset{node distance=2.5cm,every state/.style={semithick,fill=gray!10},initial text={},double distance=2pt,every edge/.style={draw,->,>=stealth,auto,semithick}}
+\usemintedstyle{colorful}
+
+\title{COMP SCI 7411 Event Driven Computing Project Plan}
+\author{Tinson Lai \\ a1812422}
+\date{}
+
+\begin{document}
+
+\maketitle
+
+\section{Preliminary Notes}
+
+I've included a batch script to be run on my own Windows machine without altering system environment variables. For Debian-based distributions Linux, they should contain gradle, openjdk-8 and android-sdk packages in their official apt repository. However, I am not quite sure if this would also apply to other distributions as I personally prefer Ubuntu over other distributions. As long as Cordova can run correctly, it should be fine to build and emulate this app. The backend needs Node.js 10+.
+
+\end{document}

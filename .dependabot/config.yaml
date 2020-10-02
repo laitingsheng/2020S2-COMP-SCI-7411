@@ -12,7 +12,18 @@ update_configs:
       - dependabot
       - enhancement
   - package_manager: javascript
-    directory: project
+    directory: project/cordova
+    update_schedule: daily
+    target_branch: master
+    default_assignees:
+      - laitingsheng
+    default_reviewers:
+      - laitingsheng
+    default_labels:
+      - dependabot
+      - enhancement
+  - package_manager: javascript
+    directory: project/backend
     update_schedule: daily
     target_branch: master
     default_assignees:
