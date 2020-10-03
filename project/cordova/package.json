@@ -34,6 +34,8 @@
     ]
   },
   "dependencies": {
-    "colyseus.js": "^0.13.2"
+    "bootstrap": "^4.5.2",
+    "colyseus.js": "^0.13.2",
+    "rxjs": "^6.6.3"
   }
 }

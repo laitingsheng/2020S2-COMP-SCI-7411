@@ -10,8 +10,13 @@
   "author": "Tinson Lai",
   "license": "ISC",
   "dependencies": {
-    "colyseus": "^0.13.7",
     "express": "^4.17.1",
-    "rxjs": "^6.6.3"
+    "rxjs": "^6.6.3",
+    "uuid": "^8.3.0"
+  },
+  "type": "module",
+  "devDependencies": {
+    "@types/express": "^4.17.8",
+    "@types/uuid": "^8.3.0"
   }
 }

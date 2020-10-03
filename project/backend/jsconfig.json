@@ -1,7 +1,13 @@
 {
   "compilerOptions": {
-    "module": "commonjs",
+    "module": "commonJS",
     "target": "es6"
+  },
+  "typeAcquisition": {
+    "include": [
+      "express",
+      "uuid"
+    ]
   },
   "exclude": [
     "node_modules"
