@@ -11,5 +11,5 @@ end_of_line = lf
 [{Makefile,.gitmodules,.git/config}]
 indent_style = tab
 
-[*.{json,yaml,yml,xml,html,css,tex,bib}]
+[*.{json,yaml,yml,xml,html,ejs,css,tex,bib}]
 indent_size = 2
