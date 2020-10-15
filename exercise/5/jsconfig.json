@@ -1,19 +1,9 @@
 {
   "compilerOptions": {
-    "baseUrl": "src",
-    "paths": {
-      "*": [
-        "src/*"
-      ]
-    },
     "module": "es6",
     "target": "es6",
     "strict": true,
     "checkJs": true,
-    "jsx": "react",
-    "moduleResolution": "node"
-  },
-  "exclude": [
-    "node_modules"
-  ]
+    "moduleResolution": "classic"
+  }
 }
