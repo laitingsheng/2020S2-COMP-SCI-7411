@@ -1,9 +1,8 @@
 {
   "compilerOptions": {
-    "module": "es6",
-    "target": "es6",
+    "module": "es2020",
+    "target": "es2020",
     "strict": true,
-    "checkJs": true,
-    "moduleResolution": "classic"
+    "moduleResolution": "node"
   }
 }
