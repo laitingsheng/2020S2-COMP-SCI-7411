@@ -3,14 +3,14 @@
   "displayName": "Cordova",
   "version": "0.0.0",
   "description": "Apache Cordova application for COMP SCI 7411 project.",
-  "main": "index.js",
+  "private":true,
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "keywords": [
     "ecosystem:cordova"
   ],
-  "author": "Apache Cordova Team",
+  "author": "Tinson Lai",
   "devDependencies": {
     "cordova-android": "^9.0.0",
     "cordova-browser": "^6.0.0",
@@ -34,8 +34,7 @@
     ]
   },
   "dependencies": {
-    "bootstrap": "^4.5.2",
-    "colyseus.js": "^0.13.2",
-    "rxjs": "^6.6.3"
+    "rxjs": "^6.6.3",
+    "socket.io-client": "^2.3.1"
   }
 }

@@ -4,17 +4,20 @@
   "description": "Node.js backend for COMP SCI 7411 project",
   "private": true,
   "scripts": {
-    "start": "node index.js"
+    "build": "webpack",
+    "start": "node build/main.js"
   },
   "author": "Tinson Lai",
   "dependencies": {
+    "bufferutil": "^4.0.1",
+    "lodash": "^4.17.20",
     "rxjs": "^6.6.3",
-    "socket.io": "^2.3.0"
+    "socket.io": "^2.3.0",
+    "utf-8-validate": "^5.0.2"
   },
-  "type": "module",
   "devDependencies": {
     "@types/socket.io": "^2.1.11",
-    "webpack": "^5.1.0",
+    "webpack": "^5.1.3",
     "webpack-cli": "^4.0.0"
   }
 }
