@@ -1,7 +1,6 @@
 const { fromEvent, operators } = rxjs;
 const { filter, pluck, tap } = operators;
 
-var socket = null;
 const subs = {};
 
 function create_card(title) {
@@ -43,7 +42,7 @@ function create_checkbox(title, id, status, handler) {
 }
 
 function replacer(_k, v) {
-    return v === null || v.toFixed === undefined ? v : Number(v.toFixed(2));
+    return v && v.toFixed ? Number(v.toFixed(2)) : v;
 }
 
 function render(element, obj) {
@@ -52,8 +51,6 @@ function render(element, obj) {
 
 const handlers = {
     load: {
-        data: null,
-
         average: true,
         raw: false,
         type: {
@@ -72,15 +69,15 @@ const handlers = {
 
             const self = this;
 
-            options_body.appendChild(create_checkbox("Average", "avgload", this.average, function() {
+            options_body.appendChild(create_checkbox("Average", "load-avgload", this.average, function() {
                 self.average = this.checked;
-                if (self.data !== null)
+                if (self.data)
                     self.render();
             }));
 
             options_body.appendChild(create_checkbox("Raw", "load-raw", this.raw, function() {
                 self.raw = this.checked;
-                if (self.data !== null)
+                if (self.data)
                     self.render();
             }));
 
@@ -95,13 +92,13 @@ const handlers = {
             for (const k in desc)
                 options_body.appendChild(create_checkbox(desc[k], k, this.type[k], function() {
                     self.type[k] = this.checked;
-                    if (self.data !== null)
+                    if (self.data)
                         self.render();
                 }));
 
-            options_body.appendChild(create_checkbox("CPUs", "cpu", this.cpus, function() {
+            options_body.appendChild(create_checkbox("CPUs", "load-cpus", this.cpus, function() {
                 self.cpus = this.checked;
-                if (self.data !== null)
+                if (self.data)
                     self.render();
             }));
 
@@ -140,8 +137,6 @@ const handlers = {
     },
 
     disk: {
-        data: null,
-
         category: {
             r: true,
             w: true,
@@ -165,25 +160,25 @@ const handlers = {
             for (const k in desc)
                 options_body.appendChild(create_checkbox(desc[k], `disk-${k}`, this.category[k], function() {
                     self.category[k] = this.checked;
-                    if (self.data !== null)
+                    if (self.data)
                         self.render();
                 }));
 
             options_body.appendChild(create_checkbox("Total", "disk-total", this.total, function() {
                 self.total = this.checked;
-                if (self.data !== null)
+                if (self.data)
                     self.render();
             }));
 
             options_body.appendChild(create_checkbox("Speed", "disk-speed", this.speed, function() {
                 self.speed = this.checked;
-                if (self.data !== null)
+                if (self.data)
                     self.render();
             }));
 
             options_body.appendChild(create_checkbox("Interval", "disk-interval", this.interval, function() {
                 self.interval = this.checked;
-                if (self.data !== null)
+                if (self.data)
                     self.render();
             }));
 
@@ -235,7 +230,7 @@ const handlers = {
             for (const k in category_desc)
                 options_body.appendChild(create_checkbox(category_desc[k], `network-${k}`, this.category[k], function() {
                     self.category[k] = this.checked;
-                    if (self.data !== null)
+                    if (self.data)
                         self.render();
                 }));
 
@@ -248,13 +243,13 @@ const handlers = {
             for (const k in type_desc)
                 options_body.appendChild(create_checkbox(type_desc[k], `network-${k}`, this.type[k], function() {
                     self.type[k] = this.checked;
-                    if (self.data !== null)
+                    if (self.data)
                         self.render();
                 }));
 
             options_body.appendChild(create_checkbox("Interval", "network-interval", this.interval, function() {
                 self.interval = this.checked;
-                if (self.data !== null)
+                if (self.data)
                     self.render();
             }));
 
@@ -279,8 +274,6 @@ const handlers = {
     },
 
     procs: {
-        prev_data: null,
-
         type: {
             running: true,
             blocked: true,
@@ -321,13 +314,13 @@ const handlers = {
             for (const k in desc)
                 options_body.appendChild(create_checkbox(desc[k], `procs-${k}`, this.type[k], function() {
                     self.type[k] = this.checked;
-                    if (self.data !== null)
+                    if (self.data)
                         self.render();
                 }));
 
             options_body.appendChild(create_checkbox("Processes", "procs-proc", this.proc, function() {
                 self.proc = this.checked;
-                if (self.data !== null)
+                if (self.data)
                     self.render();
             }));
 
@@ -351,7 +344,7 @@ const handlers = {
             for (const k in proc_desc)
                 options_body.appendChild(create_checkbox(proc_desc[k], `procs-proc-${k}`, this.proc_type[k], function() {
                     self.proc_type[k] = this.checked;
-                    if (self.data !== null)
+                    if (self.data)
                         self.render();
                 }));
 
@@ -378,7 +371,7 @@ const handlers = {
 }
 
 function loaded() {
-    socket = io("http://edcsystem.hopto.org/");
+    var socket = io("http://edcsystem.hopto.org/");
     const stream = fromEvent(socket, "data");
 
     const area = document.createElement("div");
@@ -391,9 +384,11 @@ function loaded() {
 
         subs[key] = stream.pipe(
             pluck(key),
-            filter(data => data !== undefined),
-            tap(data => handler.data = data)
-        ).subscribe(() => handler.render());
+            filter(data => data)
+        ).subscribe(data => {
+            handler.data = data;
+            handler.render();
+        });
     }
 }
 
@@ -401,4 +396,5 @@ function unloaded() {
     for (k in subs)
         subs[k].unsubscribe();
     socket.close();
+    socket = null;
 }
