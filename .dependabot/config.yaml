@@ -3,7 +3,7 @@ update_configs:
   - package_manager: javascript
     directory: project/cordova
     update_schedule: daily
-    target_branch: master
+    target_branch: main
     default_assignees:
       - laitingsheng
     default_reviewers:
@@ -14,7 +14,7 @@ update_configs:
   - package_manager: javascript
     directory: project/backend
     update_schedule: daily
-    target_branch: master
+    target_branch: main
     default_assignees:
       - laitingsheng
     default_reviewers:
