@@ -1,8 +1,14 @@
 {
   "compilerOptions": {
-    "module": "es6",
-    "target": "es6",
-    "strict": true,
-    "moduleResolution": "classic"
+    "baseUrl": "src",
+    "paths": {
+      "*": [
+        "src/*"
+      ]
+    },
+    "module": "es2020",
+    "target": "es2020",
+    "checkJs": true,
+    "moduleResolution": "node"
   }
 }
