@@ -325,6 +325,111 @@ export class NetworkHandler extends Handler {
     }
 }
 
+class ProcessTable {
+    /**
+     *
+     * @param {import("./typings").ProcessesDetails} data
+     */
+    constructor(data) {
+        /**
+         * @param {number} v
+         */
+        const percentage = v => v.toFixed(0);
+
+        this.labels = {
+            name: { enable: true, name: "Name", process: _.identity },
+            state: { enable: true, name: "State", process: _.identity },
+            user: { enable: true, name: "User", process: _.identity },
+            pcpu: { enable: true, name: "CPU Usage (%)", process: percentage },
+            pmem: { enable: true, name: "Memory Usage (%)", process: percentage },
+            priority: { enable: true, name: "Priority", process: _.identity },
+            parentPid: { enable: true, name: "Parent ID", process: _.identity },
+            command: { enable: true, name: "Starting Command", process: _.identity },
+            pcpuu: { enable: true, name: "CPU Usage (User) (%)", process: percentage },
+            pcpus: { enable: true, name: "CPU Usage (System) (%)", process: percentage },
+            mem_vsz: { enable: true, name: "Virtual Memory Size", process: _.identity },
+            mem_rss: { enable: true, name: "Memory Resident Set Size", process: _.identity },
+            nice: { enable: true, name: "Nice Value", process: _.identity },
+            started: { enable: true, name: "Start Time", process: _.identity },
+            tty: { enable: true, name: "TTY", process: _.identity },
+            params: { enable: true, name: "Parameters", process: _.identity },
+            path: { enable: true, name: "Path", process: _.identity }
+        };
+
+        this.data = data;
+
+        const self = this;
+
+        /**
+         * @type {HTMLDivElement}
+         */
+        this.options = e("div", { class: "card-header" },
+            ..._.map(this.labels, (value, key) => create_checkbox(value.name, `procs-option-${key}`, function () {
+                value.enable = this.checked;
+                self.refresh();
+            }))
+        );
+
+        /**
+         * @type {HTMLTableSectionElement}
+         */
+        this.thead = this.generate_thead();
+
+        /**
+         * @type {HTMLTableSectionElement}
+         */
+        this.tbody = this.generate_tbody();
+
+        /**
+         * @type {HTMLTableElement}
+         */
+        this.table = e("table", { class: "card-body table table-sm table-responsive" },
+            this.thead,
+            this.tbody
+        );
+    }
+
+    /**
+     * @returns {HTMLTableSectionElement}
+     */
+    generate_thead() {
+        return e("thead", {},
+            e("tr", {},
+                e("th", { class: "text-center", scope: "col" }, "#"),
+                ..._.map(this.labels, ({ enable, name }) => enable ? e("th", { class: "text-center", scope: "col" },name) : "")
+            )
+        );
+    }
+
+    /**
+     * @returns {HTMLTableSectionElement}
+     */
+    generate_tbody() {
+        return e("tbody", {},
+            ..._.map(this.data, data => e("tr", {},
+                e("th", { class: "text-center", scope: "row" }, data.pid.toString()),
+                ..._.map(this.labels, ({ enable, process }, key) => enable ? e("td", { class: "text-center" }, process(data[key])) : "")
+            ))
+        );
+    }
+
+    /**
+     *
+     * @param {import("./typings").ProcessesDetails} data
+     */
+    update(data) {
+        this.data = data;
+    }
+
+    refresh() {
+        const thead = this.generate_thead(), tbody = this.generate_tbody();
+        this.table.replaceChild(thead, this.thead);
+        this.table.replaceChild(tbody, this.tbody);
+        this.thead = thead;
+        this.tbody = tbody;
+    }
+}
+
 /**
  * @extends {Handler<import("./typings").ProcessesHandlerData>}
  */
@@ -334,22 +439,20 @@ export class ProcessesHandler extends Handler {
      */
     update(data) {
         if (this.data) {
-            _.forIn(this.data.graph, ({ values }, key) => {
+            _.forIn(this.data, ({ values }, key) => {
                 values.push(data[key]);
                 values.shift();
             })
-            this.data.table = data.list;
+            this.table.update(data.list);
         } else {
             this.data = {
-                graph: {
-                    all: new ChartRecord("all", "procs-graph", "All Processes", data),
-                    running: new ChartRecord("running", "procs-graph", "All Running Processes", data),
-                    blocked: new ChartRecord("blocked", "procs-graph", "All Blocked Processes", data),
-                    sleeping: new ChartRecord("sleeping", "procs-graph", "All Sleeping Processes", data),
-                    unknown: new ChartRecord("unknown", "procs-graph", "All Unknown Processes", data)
-                },
-                table: data.list
+                all: new ChartRecord("all", "procs-graph", "All Processes", data),
+                running: new ChartRecord("running", "procs-graph", "All Running Processes", data),
+                blocked: new ChartRecord("blocked", "procs-graph", "All Blocked Processes", data),
+                sleeping: new ChartRecord("sleeping", "procs-graph", "All Sleeping Processes", data),
+                unknown: new ChartRecord("unknown", "procs-graph", "All Unknown Processes", data)
             };
+            this.table = new ProcessTable(data.list);
 
             this.content.appendChild(e("nav", { class: "nav nav-tabs", role: "tablist" },
                 e("a", { class: "nav-link", id: "procs-nav-graph-tab", href: "#procs-nav-graph", role: "tab", "data-toggle": "tab", "aria-controls": "procs-nav-graph" },
@@ -363,17 +466,21 @@ export class ProcessesHandler extends Handler {
             this.content.appendChild(e("div", { class: "tab-content" },
                 e("div", { class: "tab-pane fade card", id: "procs-nav-graph", role: "tabpanel", "aria-labelledby": "procs-nav-graph-tab" },
                     e("div", { class: "card-header" },
-                        ..._.map(this.data.graph, ({ option }) => option)
+                        ..._.map(this.data, ({ option }) => option)
                     ),
-                    ..._.map(this.data.graph, ({ canvas }) => canvas)
+                    ..._.map(this.data, ({ canvas }) => canvas)
                 ),
-                e("div", { class: "tab-pane fade card", id: "procs-nav-details", role: "tabpanel", "aria-labelledby": "procs-nav-details-tab" })
+                e("div", { class: "tab-pane fade card", id: "procs-nav-details", role: "tabpanel", "aria-labelledby": "procs-nav-details-tab" },
+                    this.table.options,
+                    this.table.table
+                )
             ));
         }
         return this;
     }
 
     render() {
-        _.each(this.data.graph, record => record.refresh());
+        _.each(this.data, record => record.refresh());
+        this.table.refresh();
     }
 }

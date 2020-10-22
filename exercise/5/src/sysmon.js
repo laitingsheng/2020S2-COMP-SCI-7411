@@ -8,6 +8,9 @@ import { e } from "./render";
 
 import "bootstrap";
 
+import "bootstrap/dist/css/bootstrap.min.css"
+import "chart.js/dist/Chart.min.css"
+
 const socket = io("http://edcsystem.hopto.org/");
 const stream = fromEvent(socket, "data");
 

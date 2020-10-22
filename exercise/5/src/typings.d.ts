@@ -55,15 +55,12 @@ export interface NetworkHandlerData {
 
 export type ProcessesHandlerInput = si.ProcessesData;
 
-export interface ProcessesHandlerGraphData {
+export type ProcessesDetails = si.ProcessesProcessData[];
+
+export interface ProcessesHandlerData {
     all: ChartRecord<si.ProcessesData>;
     running: ChartRecord<si.ProcessesData>;
     blocked: ChartRecord<si.ProcessesData>;
     sleeping: ChartRecord<si.ProcessesData>;
     unknown: ChartRecord<si.ProcessesData>;
-};
-
-export interface ProcessesHandlerData {
-    graph: ProcessesHandlerGraphData;
-    table: ProcessesProcessData[];
 };
