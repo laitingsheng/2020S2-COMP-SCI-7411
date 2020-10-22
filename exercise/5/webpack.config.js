@@ -15,17 +15,6 @@ module.exports = {
         filename: "[name].bundle.min.js",
         path: path.resolve(__dirname, "build"),
     },
-    module: {
-        rules: [
-            {
-                test: /\.(js|jsx)$/,
-                exclude: /node_modules/,
-                use: {
-                    loader: "babel-loader"
-                }
-            }
-        ]
-    },
     plugins: [
         new HtmlWebpackPlugin({
             title: "Sysmon",
