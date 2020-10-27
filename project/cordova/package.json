@@ -3,7 +3,7 @@
   "displayName": "Cordova",
   "version": "0.0.0",
   "description": "Apache Cordova application for COMP SCI 7411 project.",
-  "private":true,
+  "private": true,
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
   },

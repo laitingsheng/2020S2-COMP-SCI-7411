@@ -5,12 +5,12 @@ import io from "socket.io";
 /**
  * @type {Readonly<Object<string, [number, number]>>}
  */
-export const DIRECTIONS = Object.freeze({
+export const DIRECTIONS = {
     left: [-1, 0],
     right: [1, 0],
     up: [0, -1],
     down: [0, 1]
-});
+};
 
 export class Player {
     /**
@@ -100,7 +100,7 @@ export class GameServer {
     }
 
     /**
-     * @param {io.Socket} socket
+     * @param {SocketIO.Socket} socket
      */
     newPlayer(socket) {
         const player = this.players[socket.id] = this.game.newPlayer();
