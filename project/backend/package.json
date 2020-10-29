@@ -16,7 +16,7 @@
     "utf-8-validate": "^5.0.2"
   },
   "devDependencies": {
-    "@types/lodash": "^4.14.162",
+    "@types/lodash": "^4.14.163",
     "@types/socket.io": "^2.1.11",
     "webpack": "^5.2.0",
     "webpack-cli": "^4.1.0"
