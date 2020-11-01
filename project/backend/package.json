@@ -9,16 +9,16 @@
   },
   "author": "Tinson Lai",
   "dependencies": {
-    "bufferutil": "^4.0.1",
+    "bufferutil": "^4.0.2",
     "lodash": "^4.17.20",
     "rxjs": "^6.6.3",
     "socket.io": "^2.3.0",
-    "utf-8-validate": "^5.0.2"
+    "utf-8-validate": "^5.0.3"
   },
   "devDependencies": {
-    "@types/lodash": "^4.14.162",
+    "@types/lodash": "^4.14.164",
     "@types/socket.io": "^2.1.11",
-    "webpack": "^5.2.0",
+    "webpack": "^5.3.2",
     "webpack-cli": "^4.1.0"
   },
   "type": "module"
