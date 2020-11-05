@@ -98,72 +98,111 @@ export default class World {
     }
 
     /**
+     * @param {Player} updates
+     */
+    check(...updates) {
+        const { yellow, black } = this;
+
+        let uses = _.mapKeys(updates, v => v.id);
+
+        if (!yellow.cd) {
+            const [yx, yy] = yellow.position,
+                used = _.find(updates, ({ position: [x, y] }) =>
+                    Math.abs(yx - x) < 16 && Math.abs(yy - y) < 16);
+            if (used) {
+                if (used.it)
+                    used.invisible = 15;
+                else
+                    used.invincible = 15;
+                yellow.cd = 20;
+                yellow.position = null;
+            }
+        }
+
+        if (!black.cd) {
+            const [bx, by] = black.position,
+                used = _.find(updates, ({ position: [x, y] }) =>
+                    Math.abs(bx - x) < 16 && Math.abs(by - y) < 16);
+            if (used) {
+                if (used.it) {
+                    const { id } = used, { players } = this;
+                    _.forEach(players, other => {
+                        if (other.id !== id)
+                            other.stunned = 10;
+                    });
+                    uses = players;
+                }
+                black.cd = 30;
+                black.position = null;
+            }
+        }
+
+        return _.values(uses);
+    }
+
+    /**
      * @param {Player} player
      * @param {number} dx
      * @param {number} dy
      * @returns {Player[]}
      */
     update(player, dx, dy) {
-        const { size, players, yellow, black } = this,
+        if (player.stunned)
+            return [];
+
+        const { size, players } = this,
             { position, id } = player,
             [ox, oy] = position,
             nx = ox + dx,
             ny = oy + dy;
-        const updated = [];
+        // the centre must be in range
         if (_.inRange(nx, size + 1) && _.inRange(ny, size + 1)) {
-            delete players[id];
+            /**
+             * @type {Player[]}
+             * find out all collisions
+             */
+            const cs = _.filter(players, ({ id: oid, position: [px, py] }) =>
+                oid !== id &&
+                Math.abs(px - nx) < 21 && Math.abs(py - ny) < 21);
+            // when player is "it"
             if (player.it) {
-                player.position = [nx, ny];
-                updated.push(player);
-                for (const oid in players) {
-                    const other = players[oid], [px, py] = other.position;
-                    if (Math.abs(px - nx) < 21 && Math.abs(py - ny) < 21) {
+                // empty will return true
+                if (_.every(cs, ({ invincible }) => !invincible)) {
+                    player.position = [nx, ny];
+
+                    const { length } = cs;
+                    if (length) {
+                        // the current "it" will be updated
                         player.it = false;
-                        other.it = true;
-                        other.position = this.spawn();
-                        updated.push(other);
-                        break;
+                        player.invisible = 0;
+                        // reset and respawn all tagged people
+                        _.forEach(cs, other => {
+                            other.position = this.spawn();
+                            other.stunned = other.invincible = 0;
+                        });
+                        // randomly select a new "it"
+                        cs[_.random(length - 1)].it = true;
                     }
+                    return this.check(player, ...cs);
                 }
-
-                if (!yellow.cd) {
-                    const [yx, yy] = yellow.position;
-                    if (Math.abs(nx - yx) < 16 && Math.abs(ny - yy) < 16) {
-                        yellow.cd = 20;
-                        yellow.position = null;
-                        player.invisible = 15;
-                    }
-                }
-
-                if (!black.cd) {
-                    const [bx, by] = black.position;
-                    if (Math.abs(nx - bx) < 16 && Math.abs(ny - by) < 16) {
-                        black.cd = 30;
-                        black.position = null;
-                        _.forEach(players, player => player.stunned = 20);
-                    }
-                }
-            } else {
-                let valid = true, np = [nx, ny];
-                for (const oid in players) {
-                    const other = players[oid], [px, py] = other.position;
-                    if (Math.abs(px - nx) < 21 && Math.abs(py - ny) < 21) {
-                        if (other.it)
-                            np = this.spawn();
-                        else
-                            valid = false;
-                        break;
-                    }
-                }
-                if (valid) {
-                    player.position = np;
-                    updated.push(player);
-                }
+                // blocked movement due to invincible will have no updates
+                return [];
             }
-
-            players[id] = player;
+            // normal
+            switch (cs.length) {
+                case 0:
+                    player.position = [nx, ny];
+                    return this.check(player);
+                case 1:
+                    if (cs[0].it && !player.invincible){
+                        player.position = this.spawn();
+                        return this.check(player);
+                    }
+                default:
+                    return [];
+            }
         }
-        return updated;
+        return [];
     }
 
     /**
@@ -180,6 +219,7 @@ export default class World {
             if (length) {
                 const selected = others[_.random(length - 1)];
                 selected.it = true;
+                selected.stunned = selected.invincible = 0;
                 return selected;
             }
         }

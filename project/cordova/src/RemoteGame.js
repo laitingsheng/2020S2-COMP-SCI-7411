@@ -19,11 +19,7 @@ export default class RemoteGame {
     }
 
     render() {
-        const { height, width } = this.canvas,
-            cx = width / 2,
-            cy = height / 2;
-
-        // do nothing instead of throwing an exception when inconsistent latency
+        // do nothing instead of throwing an exception
         const {
             [this.current]: me,
             ...rest
@@ -31,12 +27,16 @@ export default class RemoteGame {
         if (!me)
             return;
 
-        const { ctx, size, yellow, black } = this;
+        // clear the canvas first
+        const { height, width } = this.canvas,
+            { ctx, size, yellow, black } = this;
         ctx.clearRect(0, 0, width, height);
         ctx.lineWidth = 3;
 
         // compute the adjustment needed to lock to the centre
-        const [mx, my] = me.position,
+        const cx = width / 2,
+            cy = height / 2,
+            [mx, my] = me.position,
             dx = cx - mx,
             dy = cy - my,
             rdx = cx - (size - mx),
@@ -72,9 +72,9 @@ export default class RemoteGame {
                     ctx.fillStyle = "blue";
                     ctx.fillRect(pcx - 7, pcy - 7, 15, 15);
                     // the stroke (as the border) implies the effects
-                    ctx.strokeStyle = me.stunned
+                    ctx.strokeStyle = player.stunned
                         ? "black"
-                        : me.invincible ? "gold" : "green";
+                        : player.invincible ? "gold" : "green";
                     ctx.strokeRect(pcx - 9, pcy - 9, 19, 19);
                 }
             }
@@ -104,9 +104,9 @@ export default class RemoteGame {
         if (dy > 0)
             ctx.fillRect(0, 0, width, dy);
         if (rdx > 0)
-            ctx.fillRect(width - 1 - rdx, 0, rdx, height);
+            ctx.fillRect(width - 1 - rdx, 0, rdx + 1, height);
         if (rdy > 0)
-            ctx.fillRect(0, height - 1 - rdy, width, rdy);
+            ctx.fillRect(0, height - 1 - rdy, width, rdy + 1);
     }
 
     /**

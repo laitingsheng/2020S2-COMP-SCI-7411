@@ -22,6 +22,55 @@
 
 \section{Preliminary Notes}
 
-I've included a batch script to be run on my own Windows machine without altering system environment variables. For Debian-based distributions Linux, they should contain gradle, openjdk-8 and android-sdk packages in their official apt repository. However, I am not quite sure if this would also apply to other distributions as I personally prefer Ubuntu over other distributions. As long as Cordova can run correctly, it should be fine to build and emulate this app. The backend needs Node.js 10+.
+I've included a batch script to be run on my own Windows machine without altering system environment variables. For Debian-based distributions Linux, they should contain gradle, openjdk-8 and android-sdk packages in their official APT repository. However, I am not quite sure if this would also apply to other distributions as I personally prefer Ubuntu over other distributions. As long as Cordova can run correctly, it should be fine to build and emulate this app. Both Cordova and Backend parts need prior compilation before deploying or running, and I am using Node.js 14+.
+
+\section{Architecture}
+
+The architecture is designed to be centralised, meaning that the client side is essentially a remote controller plus a remote display. All game logics are implemented in and distributed by the backend server. This makes the program suffers from:
+
+\begin{itemize}
+  \item The input received from the client side will be at a very high rate (1 event per 20 ms). This is also the reason I forfeit the plan of deploying it to a public cloud provider. Even large cloud clusters based in Sydney provided by companies like Google or Microsoft will still has a latency of more than 30ms. However, the Dockerfile is still kept in the repository. Containerising it will also cause extra latency.
+  \item The server may not be capable to deal with a large number of clients, partly because of JavaScript itself is quite slow. Also the data transferred between the server and clients are not optimised, so redundant transfer of data may exist in the communication.
+\end{itemize}
+
+\subsection{Game Logic}
+
+The game will start an endless round when the server is started. There is no automatic termination of the round. Clients may entre and leave the server freely. The basic rules are:
+
+\begin{enumerate}
+  \item The first player entres the server will automatically be selected to the "it".
+  \item All subsequently joining players will be normal player from the start.
+  \item If the current "it" leaves the game, the server will automatically and randomly select a player in the game to be the "it".
+  \item When the current "it" catch someone, the caught people will respawn randomly in the game, and it will be the new "it". The original "it" is no longer the "it".
+\end{enumerate}
+
+For simplicity, the game mechanics are:
+
+\begin{itemize}
+  \item All items are squares so that the collisions measurement will be easier.
+  \item There are only four directions (left, right, up, down) to move. This will be controlled by moving the mouse in the browser, or touching the screen on the phone.
+  \item The vision is locked to the player as the centre (mostly similar to the Agar.io game).
+  \item The status of the player is displayed as the border surrounding the square in the game. Each square represents a player. Colours of the square can help players to distinguished their controlled one from others (navy vs blue, darkred vs red).
+\end{itemize}
+
+And the unrealistic capsules are:
+
+\begin{itemize}
+  \item Yellow, which will make the "it" invisible for 15 seconds, or make someone else invincible for 15 seconds. The capsule will be regenerated per 20 seconds.
+  \item Black, which will only have effect if the "it" eat it. It will stun all players except the "it" itself for 10 seconds. Others can eat this capsule to prevent being stunned by the "it". It will be regenerated for every 30 seconds.
+\end{itemize}
+
+The implementation only uses a little bit of RxJS to pipe and repeat the input. Most of the operations are done by "lodash" instead.
+
+\subsection{Game Input}
+
+The game input is gathered directly as the \mintinline{js}|"mousemove"| event fired by the canvas element. The marble diagram is too complicated to draw since it involves the usage of \mintinline{js}|ReplaySubject|. But the process is:
+
+\begin{enumerate}
+  \item The ReplaySubject will only contains a buffer size of 1, then repeatedly emit the last value received in the buffer every 20 ms. The direction will be computed in this step, meanings the direction will be sent to the server instead of letting the server to calculate the direction.
+  \item The buffer mentioned before will be updated by a subscription to the \mintinline{js}|"mousemove"| event as discussed.
+\end{enumerate}
+
+The reason I used this in the implementation is that I don't want to put extra computations to the server, thus I let the client repeat the user's last action by default.
 
 \end{document}

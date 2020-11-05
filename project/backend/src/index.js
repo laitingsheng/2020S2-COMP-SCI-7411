@@ -18,9 +18,9 @@ setInterval(() => {
 server.on("connect", socket => {
     console.log(`${socket.id} connected`);
 
-    const player = world.add(socket.id);
-
     socket.emit("init", world);
+
+    const player = world.add(socket.id);
     server.emit("add", player);
 
     /**

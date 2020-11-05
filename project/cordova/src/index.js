@@ -11,8 +11,9 @@ canvas.width = window.innerWidth;
 document.body.appendChild(canvas);
 
 // initiate the socket without auto connection
-const socket = io("http://localhost", { autoConnect: false });
+// const socket = io("http://localhost", { autoConnect: false });
 // const socket = io("http://10.0.2.2", { autoConnect: false });
+const socket = io("http://edcsystem.hopto.org", { autoConnect: false });
 
 // allocate a game which is not initialised with an actual game yet
 const game = new RemoteGame(canvas, socket);
