@@ -1,53 +1,80 @@
 import _ from "lodash";
+import { fromEvent, interval, ReplaySubject } from "rxjs";
+import { repeatWhen, take, throttle, throttleTime } from "rxjs/operators";
 
 export default class RemoteGame {
     /**
-     * @param {HTMLCanvasElement} canvas
+     * @type {Object<string, RemotePlayer>}
      */
-    constructor(canvas) {
+    players = {};
+
+    /**
+     * @param {HTMLCanvasElement} canvas
+     * @param {SocketIOClient.Socket} socket
+     */
+    constructor(canvas, socket) {
         this.canvas = canvas;
         this.ctx = canvas.getContext("2d");
+        this.socket = socket;
     }
 
     render() {
         const { height, width } = this.canvas,
-            cx = Math.floor(width / 2),
-            cy = Math.floor(height / 2);
+            cx = width / 2,
+            cy = height / 2;
         const {
             [this.current]: me,
             ...rest
         } = this.players;
         if (!me)
-            throw new Error("Can't find an object as the current player");
+            return;
 
         const { ctx, size } = this;
         ctx.clearRect(0, 0, width, height);
+        ctx.lineWidth = 3;
 
-        ctx.lineWidth = 1;
-        const lx = cx - 10, uy = cy - 10;
         if (me.it) {
             ctx.fillStyle = "darkred";
-            ctx.fillRect(lx, uy, 21, 21);
-            if (me.invisible) {
-                ctx.strokeStyle = "gold";
-                ctx.strokeRect(lx, uy, 21, 21);
-            }
+            ctx.fillRect(cx - 7, cy - 7, 15, 15);
+            ctx.strokeStyle = me.invisible ? "gold" : "darkred";
+            ctx.strokeRect(cx - 9, cy - 9, 19, 19);
         } else {
             ctx.fillStyle = "navy";
-            ctx.fillRect(lx, uy, 21, 21);
+            ctx.fillRect(cx - 7, cy - 7, 15, 15);
             ctx.strokeStyle = me.stunned
                 ? "black"
                 : me.boost
                     ? me.invincible ? "gold" : "purple"
                     : me.invincible ? "lime" : "silver";
-            ctx.strokeRect(lx, uy, 21, 21);
+            ctx.strokeRect(cx - 9, cy - 9, 19, 19);
         }
 
         const [mx, my] = me.position,
             dx = cx - mx,
             dy = cy - my,
-            rdx = (width - cx) - (size - mx),
-            rdy = (height - cy) - (size - my);
+            rdx = cx - (size - mx),
+            rdy = cy - (size - my);
+        _.forEach(rest, player => {
+            const [px, py] = player.position, pcx = px + dx, pcy = py + dy;
+            if (_.inRange(pcx, width) && _.inRange(pcy, height)) {
+                if (player.it) {
+                    if (!player.invisible) {
+                        ctx.fillStyle = "red";
+                        ctx.fillRect(pcx - 10, pcy - 10, 21, 21);
+                    }
+                } else {
+                    ctx.fillStyle = "blue";
+                    ctx.fillRect(pcx - 7, pcy - 7, 15, 15);
+                    ctx.strokeStyle = me.stunned
+                        ? "black"
+                        : me.boost
+                            ? me.invincible ? "gold" : "purple"
+                            : me.invincible ? "lime" : "silver";
+                    ctx.strokeRect(pcx - 9, pcy - 9, 19, 19);
+                }
+            }
+        });
+
         ctx.fillStyle = "black";
         if (dx > 0)
             ctx.fillRect(0, 0, dx, height);
@@ -57,41 +84,37 @@ export default class RemoteGame {
             ctx.fillRect(width - 1 - rdx, 0, rdx, height);
         if (rdy > 0)
             ctx.fillRect(0, height - 1 - rdy, width, rdy);
-        _.forEach(rest, player => {
-            const [px, py] = player.position, pcx = px + dx, pcy = py + dy;
-            if (_.inRange(pcx, -9, width + 9) && _.inRange(pcy, -9, height + 9)) {
-                const plx = pcx - 10, puy = pcy - 10;
-                if (player.it) {
-                    if (!player.invisible) {
-                        ctx.fillStyle = "red";
-                        ctx.fillRect(plx, puy, 20, 20);
-                    }
-                } else {
-                    ctx.fillStyle = "blue";
-                    ctx.fillRect(plx, puy, 20, 20);
-                    ctx.strokeStyle = me.stunned
-                        ? "black"
-                        : me.boost
-                            ? me.invincible ? "gold" : "purple"
-                            : me.invincible ? "lime" : "silver";
-                    ctx.strokeRect(plx, puy, 20, 20);
-                }
-            }
-        });
     }
 
     /**
      * @param {number} size
      * @param {RemotePlayer[]} players
-     * @param {string} current
      */
-    init(size, players, current) {
+    init = (size, players) => {
         this.size = size;
-        /**
-         * @type {Dictionary<RemotePlayer>}
-         */
-        this.players = _.mapKeys(players, v => v.id);
-        this.current = current;
+        Object.assign(this.players, _.mapKeys(players, v => v.id));
+        const { socket } = this;
+        this.current = socket.id;
+
+        const subject = this.subject = new ReplaySubject(1), { canvas } = this;
+        this.ss = subject
+            .pipe(
+                take(1),
+                repeatWhen(() => interval(20))
+            )
+            .subscribe(({ offsetX, offsetY }) => {
+                const dx = offsetX - canvas.width / 2,
+                    dy = offsetY - canvas.height / 2;
+                if (dx && Math.abs(dx) >= Math.abs(dy))
+                    socket.emit("move", Math.sign(dx), 0);
+                else
+                    socket.emit("move", 0, Math.sign(dy));
+            });
+        this.es = fromEvent(canvas, "mousemove")
+            .pipe(throttleTime(20))
+            .subscribe(subject);
+
+        this.render();
     }
 
     /**
@@ -116,18 +139,22 @@ export default class RemoteGame {
      * @param {RemotePlayer[]} updates
      */
     update = (updates) => {
-        const { players } = this;
-        for (const player of updates)
-            players[player.id] = player;
+        Object.assign(this.players, _.mapKeys(updates, v => v.id));
 
         this.render();
     }
 
     reset() {
+        this.es.unsubscribe();
+        delete this.es;
+        this.ss.unsubscribe();
+        delete this.ss;
+        delete this.subject;
+
         const { height, width } = this.canvas;
         this.ctx.clearRect(0, 0, width, height);
         delete this.size;
-        delete this.players;
         delete this.current;
+        this.players = {};
     }
 }

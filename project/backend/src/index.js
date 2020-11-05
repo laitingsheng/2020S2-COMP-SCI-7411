@@ -12,9 +12,10 @@ const world = new World(SIZE);
 server.on("connect", socket => {
     console.log(`${socket.id} connected`);
 
-    socket.emit("init", SIZE, Object.values(world.players));
-
     const player = world.add(socket.id);
+
+    server.emit("add", player);
+    socket.emit("init", SIZE, Object.values(world.players));
 
     /**
      * @param {number} dx
@@ -23,16 +24,14 @@ server.on("connect", socket => {
     const onMove = (dx, dy) => server.emit("update", world.update(player, dx, dy));
 
     socket
+        .on("move", onMove)
         .once("disconnect", reason => {
             console.log(`${socket.id} disconnected (${reason})`);
 
             socket.off("move", onMove)
             world.remove(player);
             server.emit("remove", player);
-        })
-        .on("move", onMove);
-
-    server.emit("add", player);
+        });
 });
 
 server.listen(PORT);
