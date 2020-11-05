@@ -1,5 +1,4 @@
 export default class Player {
-    boost = 0;
     invisible = 0;
     invincible = 0;
     stunned = 0;

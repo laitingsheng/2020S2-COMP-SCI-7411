@@ -9,19 +9,29 @@ const SIZE = 500;
 
 const world = new World(SIZE);
 
+setInterval(() => {
+    server.emit("update", world.refresh());
+    const { yellow, black } = world;
+    server.emit("capsules", yellow, black);
+}, 1000);
+
 server.on("connect", socket => {
     console.log(`${socket.id} connected`);
 
     const player = world.add(socket.id);
 
+    socket.emit("init", world);
     server.emit("add", player);
-    socket.emit("init", SIZE, Object.values(world.players));
 
     /**
      * @param {number} dx
      * @param {number} dy
      */
-    const onMove = (dx, dy) => server.emit("update", world.update(player, dx, dy));
+    const onMove = (dx, dy) => {
+        server.emit("update", world.update(player, dx, dy));
+        const { yellow, black } = world;
+        server.emit("capsules", yellow, black);
+    };
 
     socket
         .on("move", onMove)
@@ -29,7 +39,9 @@ server.on("connect", socket => {
             console.log(`${socket.id} disconnected (${reason})`);
 
             socket.off("move", onMove)
-            world.remove(player);
+            const elected = world.remove(player);
+            if (elected)
+                socket.emit("update", [elected]);
             server.emit("remove", player);
         });
 });
